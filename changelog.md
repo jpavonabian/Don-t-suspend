@@ -1,0 +1,2 @@
+- Arreglado un eror que seguía haciendo avanzar el tiempo aunque un pomodoro estuviese pausado.
+- SHA256: 
