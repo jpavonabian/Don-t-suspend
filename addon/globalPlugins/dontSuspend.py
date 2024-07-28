@@ -86,7 +86,7 @@ def disableInSecureMode(decoratedCls):
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def __init__(self):
         super(GlobalPlugin, self).__init__()
-        self.send_keys_thread = SendKeysThread()
+        self.send_keys_thread = None
 
     def terminate(self):
         if self.send_keys_thread and self.send_keys_thread.is_alive():
