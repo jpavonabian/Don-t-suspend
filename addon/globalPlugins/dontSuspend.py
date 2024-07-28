@@ -9,50 +9,14 @@ from threading import Thread, Event
 import ui
 import addonHandler
 import time
-import ctypes
 import wx
 import globalVars
+import inputCore
+import keyboardHandler
 
 addonHandler.initTranslation()
 
 SEND_KEY_INTERVAL = 60  # Interval in seconds
-
-# Key codes for Windows key and D key
-VK_LWIN = 0x5B
-VK_D = 0x44
-
-SendInput = ctypes.windll.user32.SendInput
-
-# Define necessary structures
-PUL = ctypes.POINTER(ctypes.c_ulong)
-
-class KeyBdInput(ctypes.Structure):
-    _fields_ = [("wVk", ctypes.c_ushort),
-                ("wScan", ctypes.c_ushort),
-                ("dwFlags", ctypes.c_ulong),
-                ("time", ctypes.c_ulong),
-                ("dwExtraInfo", PUL)]
-
-class Input_I(ctypes.Union):
-    _fields_ = [("ki", KeyBdInput)]
-
-class Input(ctypes.Structure):
-    _fields_ = [("type", ctypes.c_ulong),
-                ("ii", Input_I)]
-
-# Functions to press and release a key
-def press_key(hexKeyCode):
-    extra = ctypes.c_ulong(0)
-    ii_ = Input_I()
-    ii_.ki = KeyBdInput(hexKeyCode, 0, 0, 0, ctypes.pointer(extra))
-    x = Input(ctypes.c_ulong(1), ii_)
-    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-
-def release_key(hexKeyCode):
-    extra = ctypes.c_ulong(0)
-    ii_.ki = KeyBdInput(hexKeyCode, 0, 2, 0, ctypes.pointer(extra))
-    x = Input(ctypes.c_ulong(1), ii_)
-    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
 class SendKeysThread(Thread):
     def __init__(self):
@@ -66,12 +30,7 @@ class SendKeysThread(Thread):
             time.sleep(SEND_KEY_INTERVAL)
 
     def send_keys(self):
-        press_key(VK_LWIN)
-        press_key(VK_D)
-        time.sleep(0.1)
-        release_key(VK_D)
-        release_key(VK_LWIN)
-        wx.CallAfter(ui.message, "Windows + D keys sent.")
+        inputCore.manager.emulateGesture(keyboardHandler.KeyboardInputGesture.fromName("windows+d"))
 
     def stop(self):
         self.stop_event.set()
